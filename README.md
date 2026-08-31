@@ -1,7 +1,7 @@
 # Homebrew tap for cdai
 
-Install [cdai](https://github.com/franzenzenhofer/cdai)—`cd` with indexed search, remembered
-intent, smart Tab completion and an optional guarded AI fallback—with one command:
+Install [cdai](https://github.com/franzenzenhofer/cdai), the AI-enhanced `cd` command with indexed
+search, remembered intent, smart Tab completion and an optional guarded AI fallback:
 
 ```bash
 brew install franzenzenhofer/tap/cdai
