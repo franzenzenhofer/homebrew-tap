@@ -1,18 +1,33 @@
-# Franzenzenhofer Tap
+# Homebrew tap for cdai
 
-## How do I install these formulae?
+Install [cdai](https://github.com/franzenzenhofer/cdai)—`cd` with indexed search, remembered
+intent, smart Tab completion and an optional guarded AI fallback—with one command:
 
-`brew install franzenzenhofer/tap/<formula>`
+```bash
+brew install franzenzenhofer/tap/cdai
+```
 
-Or `brew tap franzenzenhofer/tap` and then `brew install <formula>`.
+Homebrew installs the Node runtime dependency automatically. After installation, follow the
+printed shell-integration instructions and run:
 
-Or, in a `brew bundle` `Brewfile`:
+```bash
+cdai setup
+cdai doctor
+```
+
+## Brewfile
 
 ```ruby
 tap "franzenzenhofer/tap"
-brew "<formula>"
+brew "cdai"
 ```
 
-## Documentation
+## Updates
 
-`brew help`, `man brew` or check [Homebrew's documentation](https://docs.brew.sh).
+```bash
+brew update
+brew upgrade cdai
+```
+
+Usage, shell setup and safety details live in the
+[cdai README](https://github.com/franzenzenhofer/cdai#readme).
