@@ -7,7 +7,8 @@ intent, smart Tab completion and an optional guarded AI fallback—with one comm
 brew install franzenzenhofer/tap/cdai
 ```
 
-Homebrew installs the Node runtime dependency automatically. After installation, follow the
+Requires Node.js 20+ on `PATH`. The formula reuses your existing nvm, fnm, asdf, Volta, mise or
+system Node and deliberately does not install another runtime. After installation, follow the
 printed shell-integration instructions and run:
 
 ```bash
