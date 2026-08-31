@@ -49,6 +49,28 @@ jobs:
       - run: brew test-bot --only-setup
 
       - run: brew test-bot --only-tap-syntax
+
+      - name: Verify conditional Node selection
+        run: |
+          compatible_dir="$RUNNER_TEMP/cdai node 20/bin"
+          old_dir="$RUNNER_TEMP/cdai-node-18/bin"
+          mkdir -p "$compatible_dir" "$old_dir"
+          printf '%s\n' '#!/bin/sh' 'printf "%s\n" "CDAI_NODE_MAJOR=22"' > "$compatible_dir/node"
+          printf '%s\n' '#!/bin/sh' 'printf "%s\n" "CDAI_NODE_MAJOR=18"' > "$old_dir/node"
+          chmod +x "$compatible_dir/node" "$old_dir/node"
+
+          PATH="$compatible_dir:$PATH" brew ruby -e '
+            formula = Formula["franzenzenhofer/tap/cdai"]
+            abort "compatible external Node unexpectedly added a formula dependency" unless formula.deps.empty?
+            abort "compatible external Node requirement missing" unless formula.requirements.one?
+          '
+
+          PATH="$old_dir:$PATH" brew ruby -e '
+            formula = Formula["franzenzenhofer/tap/cdai"]
+            abort "old Node did not select the Homebrew Node fallback" unless formula.deps.map(&:name) == ["node"]
+            abort "old Node unexpectedly satisfied the external requirement" unless formula.requirements.empty?
+          '
+
       - run: brew test-bot --only-formulae
 
       - name: Upload bottles as artifact
