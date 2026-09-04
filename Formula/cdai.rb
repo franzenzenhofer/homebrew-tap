@@ -38,8 +38,8 @@ end
 class Cdai < Formula
   desc "Change directories by intent with indexed search and optional AI"
   homepage "https://github.com/franzenzenhofer/cdai"
-  url "https://github.com/franzenzenhofer/cdai/archive/refs/tags/v0.3.3.tar.gz"
-  sha256 "20cdd3b5a4430710d52dbeab26d3b4ba38b2da7a12cba5fd62899a949a3d6b87"
+  url "https://github.com/franzenzenhofer/cdai/archive/refs/tags/v0.3.4.tar.gz"
+  sha256 "262fb91dd98b6dfce0b1a88d81c9d16f04b042469bac968f3dc2b72880e16c6b"
   license "MIT"
   head "https://github.com/franzenzenhofer/cdai.git", branch: "main"
 
