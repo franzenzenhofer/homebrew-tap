@@ -115,7 +115,9 @@ class Openit < Formula
     assert_equal "openit #{version}", shell_output("#{bin}/openit --version 2>&1").strip
     assert_match "say what to open", shell_output("#{bin}/openit --help 2>&1")
     assert_match "compdef _openit openit", shell_output("#{bin}/openit init zsh")
-    # Every non-zero exit is a receipt that nothing was launched; 4 is "named nothing".
-    assert_match "no match", shell_output("#{bin}/openit --dry-run zzqq-nothing-is-called-this 2>&1", 4)
+    # On a machine that has not run setup there is nothing to search, and openit says so
+    # rather than guessing. Every non-zero exit is also a receipt that nothing was launched.
+    assert_match "run `openit setup`",
+                 shell_output("#{bin}/openit --dry-run zzqq-nothing-is-called-this 2>&1", 1)
   end
 end
