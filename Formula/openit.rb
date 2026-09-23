@@ -38,8 +38,8 @@ end
 class Openit < Formula
   desc "Say what to open: openit works out what you meant and which app opens it"
   homepage "https://github.com/franzenzenhofer/openit"
-  url "https://github.com/franzenzenhofer/openit/archive/refs/tags/v0.1.0.tar.gz"
-  sha256 "16282b41f6d3f3963ea7654381a1ac51273725222e17df311e86d01ff600c205"
+  url "https://github.com/franzenzenhofer/openit/archive/refs/tags/v0.1.1.tar.gz"
+  sha256 "f93cae61e0b9f9ec121ea4d748b3a37d1f09c5d716666fbf855528c49389af14"
   license "MIT"
   head "https://github.com/franzenzenhofer/openit.git", branch: "main"
 
