@@ -1,0 +1,121 @@
+require "system_command"
+
+class OpenitExternalNodeAT20Requirement < Requirement
+  fatal true
+
+  satisfy(build_env: false) do
+    compatible_external_node
+  end
+
+  def compatible_external_node
+    node = which("node")
+    return if node.nil? || brewed_node?(node)
+
+    probe = "process.stdout.write('OPENIT_NODE_MAJOR=' + process.versions.node.split('.')[0] + '\\n')"
+    result = SystemCommand.run(node, args: ["-e", probe], print_stderr: false, timeout: 2)
+    match = result.stdout.match(/^OPENIT_NODE_MAJOR=(\d+)$/)
+    major = match[1].to_i unless match.nil?
+    node if result.success? && !major.nil? && major >= 20
+  rescue SystemCallError, Timeout::Error
+    nil
+  end
+
+  def brewed_node?(node)
+    node.realpath.to_s.start_with?("#{HOMEBREW_CELLAR}/")
+  rescue SystemCallError
+    false
+  end
+
+  def message
+    "openit requires an active external Node.js 20+ on PATH."
+  end
+
+  def display_s
+    "external Node.js >= 20"
+  end
+end
+
+class Openit < Formula
+  desc "Say what to open: openit works out what you meant and which app opens it"
+  homepage "https://github.com/franzenzenhofer/openit"
+  url "https://github.com/franzenzenhofer/openit/archive/refs/tags/v0.1.0.tar.gz"
+  sha256 "16282b41f6d3f3963ea7654381a1ac51273725222e17df311e86d01ff600c205"
+  license "MIT"
+  head "https://github.com/franzenzenhofer/openit.git", branch: "main"
+
+  # LaunchServices, open(1), xattr, mdfind and Contents/MacOS are the whole tool.
+  depends_on :macos
+
+  node_requirement = OpenitExternalNodeAT20Requirement.new
+  if node_requirement.satisfied?
+    depends_on OpenitExternalNodeAT20Requirement
+  else
+    depends_on "node"
+  end
+
+  def install
+    libexec.install "package.json"
+    (libexec/"dist").install "dist/openit.js"
+
+    external_node = OpenitExternalNodeAT20Requirement.new.compatible_external_node
+    preferred_node = external_node || (HOMEBREW_PREFIX/"opt/node/bin/node")
+    brew_node = HOMEBREW_PREFIX/"opt/node/bin/node"
+
+    (bin/"openit").write <<~SH
+      #!/bin/sh
+      compatible_node() {
+        [ -n "$1" ] && [ -x "$1" ] || return 1
+        node_major="$("$1" -p "'OPENIT_NODE_MAJOR=' + process.versions.node.split('.')[0]" 2>/dev/null)" || return 1
+        case "$node_major" in
+          OPENIT_NODE_MAJOR=2[0-9]|OPENIT_NODE_MAJOR=[3-9][0-9]|OPENIT_NODE_MAJOR=[1-9][0-9][0-9]*) return 0 ;;
+          *) return 1 ;;
+        esac
+      }
+
+      node_bin=#{preferred_node.to_s.shellescape}
+      if [ ! -x "$node_bin" ]; then
+        path_node="$(command -v node 2>/dev/null)"
+        if compatible_node "$path_node"; then
+          node_bin="$path_node"
+        elif compatible_node #{brew_node.to_s.shellescape}; then
+          node_bin=#{brew_node.to_s.shellescape}
+        else
+          node_bin=""
+        fi
+      fi
+      if [ -z "$node_bin" ]; then
+        echo "openit: Node.js 20+ is required but no compatible runtime was found." >&2
+        echo "Reinstall openit, or activate Node 20+ and reinstall to pin that runtime." >&2
+        exit 1
+      fi
+
+      exec "$node_bin" "#{opt_libexec}/dist/openit.js" "$@"
+    SH
+  end
+
+  def caveats
+    <<~EOS
+      openit reuses an active external Node.js 20+ on PATH. Otherwise Homebrew
+      uses its existing Node formula or installs it when needed.
+
+      Teach openit where you keep things, then see what it can find:
+
+        openit setup
+        openit doctor
+
+      Completion, optionally, then restart your shell:
+
+        zsh:  echo 'eval "$(openit init zsh)"' >> ~/.zshrc
+        bash: echo 'eval "$(openit init bash)"' >> ~/.bashrc
+        fish: echo 'openit init fish | source' >> ~/.config/fish/config.fish
+    EOS
+  end
+
+  test do
+    assert_equal "openit #{version}", shell_output("#{bin}/openit --version 2>&1").strip
+    assert_match "say what to open", shell_output("#{bin}/openit --help 2>&1")
+    assert_match "compdef _openit openit", shell_output("#{bin}/openit init zsh")
+    # Every non-zero exit is a receipt that nothing was launched; 4 is "named nothing".
+    assert_match "no match", shell_output("#{bin}/openit --dry-run zzqq-nothing-is-called-this 2>&1", 4)
+  end
+end
