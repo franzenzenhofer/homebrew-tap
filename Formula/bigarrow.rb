@@ -1,8 +1,8 @@
 class Bigarrow < Formula
   desc "Point at things on the macOS screen with a big arrow and a sign, for AI agents"
   homepage "https://github.com/franzenzenhofer/big-arrow-on-the-screen"
-  url "https://github.com/franzenzenhofer/big-arrow-on-the-screen/archive/refs/tags/v0.1.1.tar.gz"
-  sha256 "bb134f20ac51d128c2a77ba80481daf8ec997789e1a3e374252f55f4bfbefffe"
+  url "https://github.com/franzenzenhofer/big-arrow-on-the-screen/archive/refs/tags/v0.1.2.tar.gz"
+  sha256 "c7cb1f87eafced45b1f0b634a6abe79cb4d118e6e4ecedb73377a4e9b820788f"
   license "MIT"
   head "https://github.com/franzenzenhofer/big-arrow-on-the-screen.git", branch: "main"
 
